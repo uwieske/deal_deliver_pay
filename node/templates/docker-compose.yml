@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  pg_chainlink:
+    container_name: pg_chainlink
+    hostname: pg_chainlink
+    image: "postgres"
+    ports:
+      - "5432:5432"
+    env_file:
+      - database.env
+    volumes:
+    # assuming you are on MacOS substitute <YOUR USERNAME> for your real username. Or define another hostpath. 
+      - /Users/<YOUR USERNAME>/.chainlink-kovan/data:/var/lib/postgresql/data/
+    networks:
+      - chainlink_net
+  chainlink:
+    container_name: chainlink
+    hostname: chainlink
+    image: "smartcontract/chainlink:1.3.0"
+    env_file:
+      - .env
+    depends_on:
+      - pg_chainlink
+    ports:
+      - "6688:6688"
+    volumes:
+    # assuming you are on MacOS substitute <YOUR USERNAME> for your real username. Or define another hostpath. 
+      - /Users/<YOUR USERNAME>/.chainlink-kovan/chainlink-volume:/chainlink/
+    networks:
+      - chainlink_net
+    command: node start --password /chainlink/password.txt --api /chainlink/apicredentials.txt
+networks:
+  chainlink_net:
+      name: custom_network
